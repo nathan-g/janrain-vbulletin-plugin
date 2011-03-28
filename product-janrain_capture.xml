@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<product productid="janrain_capture" active="1">
+	<title>Janrain Capture</title>
+	<description>Janrain Capture</description>
+	<version>0.0.1</version>
+	<url>http://www.janrain.com</url>
+	<versioncheckurl />
+	<dependencies>
+		<dependency dependencytype="php" minversion="5" maxversion="" />
+		<dependency dependencytype="vbulletin" minversion="4.1.2" maxversion="" />
+	</dependencies>
+	<codes>
+	</codes>
+	<templates>
+		<template name="janrain_capture_scripts" templatetype="template" username="Janrain Capture" version="0.0.1"><![CDATA[
+<h1><a id='signin_link' class='iframe' href='http://demo.janraincapture.com/oauth/signin?response_type=code&redirect_uri={vb:raw vboptions.bburl}/&client_id={vb:raw vboptions.janrain_engage_clientid}&xd_receiver={vb:raw vboptions.bburl}/packages/janrain_engage/xdcomm.html'>Register / Sign In</a></h1>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+<script src="{vb:raw vboptions.bburl}/packages/janrain_engage/fancybox/jquery.fancybox-1.3.3.pack.js"></script>
+<script src="{vb:raw vboptions.bburl}/packages/janrain_engage/json2.js"></script>
+<script type="text/javascript">
+   jQuery(document).ready(function($) {
+       $('#signin_link').fancybox({
+          padding: 0,
+          scrolling: 'no',
+          autoScale: true,
+          width: 666,
+          autoDimensions: false
+       });
+       // $('a[rel*=lightbox]').fancybox()
+   });
+CAPTURE = {
+
+  resize: function(jargs) {
+    var args = JSON.parse(jargs);
+
+    jQuery("#fancybox-inner").css({'width': args.w + 'px', 'height': args.h + 'px'});
+    jQuery("#fancybox-wrap").css({'width': args.w + 'px', 'height': args.h + 'px'});
+    jQuery("#fancybox-content").css({ "height": args.h + 'px', "width": args.w + 'px'});
+    jQuery("#fancybox-frame").css({'width': args.w + 'px', 'height': args.h + 'px'});
+
+    jQuery.fancybox.resize();
+    jQuery.fancybox.center();
+  }
+};
+</script>
+		]]></template>
+		<template name="janrain_capture_styles" templatetype="template" username="Janrain Capture" version="9.0.1"><![CDATA[
+<link rel="stylesheet" href="{vb:raw vboptions.bburl}/packages/janrain_engage/fancybox/jquery.fancybox-1.3.3.css" />
+		]]></template>
+	</templates>
+	<stylevardfns>
+	</stylevardfns>
+	<stylevars>
+	</stylevars>
+	<plugins>
+		<plugin active="1" executionorder="5">
+			<title>Janrain Capture Dependency Loader</title>
+			<hookname>parse_templates</hookname>
+			<phpcode><![CDATA[$templater = vB_Template::create('janrain_capture_scripts');
+$templater->register_page_templates();
+$template_hook['footer_javascript'] .= $templater->render();
+$templater2 = vB_Template::create('janrain_capture_styles');
+$templater2->register_page_templates();
+$template_hook['headinclude_css'] .= $templater2->render();]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="1">
+			<title>Janrain Capture Callback</title>
+			<hookname>global_start</hookname>
+			<phpcode><![CDATA[if (isset($_GET['code'])) {
+	require_once(DIR . '/packages/janrain_capture/include.php');
+	echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<body>';
+	
+  echo "<script type='text/javascript'>parent.location.reload(); </script>\n";
+  echo "</body>
+</html>";
+}]]></phpcode>
+		</plugin>
+	</plugins>
+	<phrases>
+		<phrasetype name="vBulletin Settings" fieldname="vbsettings">
+			<phrase name="settinggroup_janrain_capture" date="1294982387" username="Janrain Capture" version="0.0.1"><![CDATA[Janrain Capture Options]]></phrase>
+			<phrase name="setting_janrain_capture_enable_desc"><![CDATA[Enable Janrain Capture.]]></phrase>
+			<phrase name="setting_janrain_capture_enable_title"><![CDATA[Enable]]></phrase>
+			<phrase name="setting_janrain_capture_clientid_desc"><![CDATA[Your Janrain Capture Client ID.]]></phrase>
+			<phrase name="setting_janrain_capture_clientid_title"><![CDATA[Client ID]]></phrase>
+			<phrase name="setting_janrain_capture_clientsecret_desc"><![CDATA[Your Janrain Capture Client Secret.]]></phrase>
+			<phrase name="setting_janrain_capture_clientsecret_title"><![CDATA[Client Secret]]></phrase>
+			<phrase name="setting_janrain_capture_captureaddr_desc"><![CDATA[Your Janrain Capture Application URL. (e.g. myapp.janraincapture.com)]]></phrase>
+			<phrase name="setting_janrain_capture_captureaddr_title"><![CDATA[Capture URL]]></phrase>
+			<phrase name="setting_janrain_capture_uuid_desc"><![CDATA[The column name of the User Profile Field used to store the Capture UUID]]></phrase>
+			<phrase name="setting_janrain_capture_uuid_title"><![CDATA[Capture UUID Field]]></phrase>
+		</phrasetype>
+	</phrases>
+	<options>
+		<settinggroup name="janrain_capture" displayorder="9990" product="janrain_capture">
+			<setting varname="janrain_capture_enable" displayorder="10">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="janrain_capture_clientid" displayorder="20">
+				<datatype>free</datatype>
+				<defaultvalue></defaultvalue>
+			</setting>
+			<setting varname="janrain_capture_clientsecret" displayorder="30">
+				<datatype>free</datatype>
+				<defaultvalue></defaultvalue>
+			</setting>
+			<setting varname="janrain_capture_captureaddr" displayorder="40">
+				<datatype>free</datatype>
+				<defaultvalue></defaultvalue>
+			</setting>
+			<setting varname="janrain_capture_uuid" displayorder="50">
+				<datatype>free</datatype>
+				<defaultvalue></defaultvalue>
+			</setting>
+		</settinggroup>
+	</options>
+	<helptopics>
+	</helptopics>
+	<cronentries>
+	</cronentries>
+	<faqentries>
+	</faqentries>
+</product>
