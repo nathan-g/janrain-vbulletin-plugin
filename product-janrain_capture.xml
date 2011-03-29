@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-
+<!--
+Place this link in your navbar in the nouser <ul>:
+<li><a class='iframe janrain_signin_link' href='http://{vb:raw vboptions.janrain_capture_captureaddr}/oauth/signin?response_type=code&redirect_uri={vb:raw vboptions.bburl}/&client_id={vb:raw vboptions.janrain_capture_clientid}&xd_receiver={vb:raw vboptions.bburl}/packages/janrain_capture/xdcomm.html'>Register / Sign In</a></li>
+-->
 <product productid="janrain_capture" active="1">
 	<title>Janrain Capture</title>
 	<description>Janrain Capture</description>
@@ -14,13 +17,12 @@
 	</codes>
 	<templates>
 		<template name="janrain_capture_scripts" templatetype="template" username="Janrain Capture" version="0.0.1"><![CDATA[
-<h1><a id='signin_link' class='iframe' href='http://demo.janraincapture.com/oauth/signin?response_type=code&redirect_uri={vb:raw vboptions.bburl}/&client_id={vb:raw vboptions.janrain_engage_clientid}&xd_receiver={vb:raw vboptions.bburl}/packages/janrain_engage/xdcomm.html'>Register / Sign In</a></h1>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
-<script src="{vb:raw vboptions.bburl}/packages/janrain_engage/fancybox/jquery.fancybox-1.3.3.pack.js"></script>
-<script src="{vb:raw vboptions.bburl}/packages/janrain_engage/json2.js"></script>
+<script src="{vb:raw vboptions.bburl}/packages/janrain_capture/fancybox/jquery.fancybox-1.3.3.pack.js"></script>
+<script src="{vb:raw vboptions.bburl}/packages/janrain_capture/json2.js"></script>
 <script type="text/javascript">
    jQuery(document).ready(function($) {
-       $('#signin_link').fancybox({
+       $('.janrain_signin_link').fancybox({
           padding: 0,
           scrolling: 'no',
           autoScale: true,
@@ -46,7 +48,7 @@ CAPTURE = {
 </script>
 		]]></template>
 		<template name="janrain_capture_styles" templatetype="template" username="Janrain Capture" version="9.0.1"><![CDATA[
-<link rel="stylesheet" href="{vb:raw vboptions.bburl}/packages/janrain_engage/fancybox/jquery.fancybox-1.3.3.css" />
+<link rel="stylesheet" href="{vb:raw vboptions.bburl}/packages/janrain_capture/fancybox/jquery.fancybox-1.3.3.css" />
 		]]></template>
 	</templates>
 	<stylevardfns>
@@ -73,6 +75,8 @@ $template_hook['headinclude_css'] .= $templater2->render();]]></phpcode>
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <body>';
+
+  capture_user_authenticate();
 	
   echo "<script type='text/javascript'>parent.location.reload(); </script>\n";
   echo "</body>
