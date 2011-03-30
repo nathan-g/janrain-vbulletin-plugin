@@ -12,10 +12,10 @@ and Show on Members List to "No"
 Leave all other fields in their default states and click "Save". Note the value
 present in the "Name" column (e.g. "field5").
 4) Navigate to the Settings -> Options -> Janrain Capture Options and set
-Enable Janrain Capture to Yes, Enter your Client ID, Client Secret, and
-Capture URL. Set the Capture UUID Field to the Name value from step 3 and click
+Enable Janrain Capture to Yes, Enter your Client ID, Client Secret, Capture URL,
+and SSO URL. Set the Capture UUID Field to the Name value from step 3 and click
 Save.
 5) Place the following link snippet in one of your template files in a location
 of your choosing:
 
-<a class='iframe janrain_signin_link' href='http://{vb:raw vboptions.janrain_capture_captureaddr}/oauth/signin?response_type=code&redirect_uri={vb:raw vboptions.bburl}/&client_id={vb:raw vboptions.janrain_capture_clientid}&xd_receiver={vb:raw vboptions.bburl}/packages/janrain_capture/xdcomm.html'>Register / Sign In</a>
+<a class='iframe janrain_signin_link' href='http://{vb:raw vboptions.janrain_capture_captureaddr}/oauth/signin?response_type=code&redirect_uri={vb:urlencode vboptions.bburl}%2F%3Fjanrain_capture%3D1&client_id={vb:urlencode vboptions.janrain_capture_clientid}&xd_receiver={vb:urlencode vboptions.bburl}%2Fpackages%2Fjanrain_capture%2Fxdcomm.html'>Register / Sign In</a>
