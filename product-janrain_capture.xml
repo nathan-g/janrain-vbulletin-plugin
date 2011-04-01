@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
 Place this link in your navbar in the nouser <ul>:
-<li><a class='iframe janrain_signin_link' href='http://{vb:raw vboptions.janrain_capture_captureaddr}/oauth/signin?response_type=code&redirect_uri={vb:urlencode vboptions.bburl}%2F%3Fjanrain_capture%3D1&client_id={vb:urlencode vboptions.janrain_capture_clientid}&xd_receiver={vb:urlencode vboptions.bburl}%2Fpackages%2Fjanrain_capture%2Fxdcomm.html'>Register / Sign In</a></li>
+<li><a class='iframe janrain_signin_link' href='https://{vb:raw vboptions.janrain_capture_captureaddr}/oauth/signin?response_type=code&redirect_uri={vb:raw vboptions.bburl}%2F&client_id={vb:raw vboptions.janrain_capture_clientid}&xd_receiver={vb:raw vboptions.bburl}%2Fpackages%2Fjanrain_capture%2Fxdcomm.html'>Register / Sign In</a></li>
 -->
 <product productid="janrain_capture" active="1">
 	<title>Janrain Capture</title>
@@ -52,17 +52,19 @@ CAPTURE = {
 function mylogout() {
   JANRAIN.SSO.CAPTURE.logout({
       sso_server: 'https://{vb:raw vboptions.janrain_capture_sso}',
-      logout_uri: '{vb:raw vboptions.bburl}/login.php?{vb:raw session.sessionurl}do=logout&amp;logouthash={vb:raw bbuserinfo.logouthash}'
+      logout_uri: '{vb:raw vboptions.bburl}/login.php?{vb:raw session.sessionurl}do=logout&logouthash={vb:raw bbuserinfo.logouthash}'
   });
 };
 <vb:else />
+<vb:if condition="$vbulletin->options['janrain_capture_sso']">
 JANRAIN.SSO.CAPTURE.check_login({
     sso_server: 'https://{vb:raw vboptions.janrain_capture_sso}',
     client_id: '{vb:raw vboptions.janrain_capture_clientid}',
-    redirect_uri: '{vb:raw vboptions.bburl}/?janrain_capture=1',
-    logout_uri: '{vb:raw vboptions.bburl}/login.php?{vb:raw session.sessionurl}do=logout&amp;logouthash={vb:raw bbuserinfo.logouthash}',
+    redirect_uri: '{vb:raw vboptions.bburl}/',
+    logout_uri: '{vb:raw vboptions.bburl}/login.php?{vb:raw session.sessionurl}do=logout&logouthash={vb:raw bbuserinfo.logouthash}',
     xd_receiver: '{vb:raw vboptions.bburl}/packages/janrain_capture/xdcomm.html'
 });
+</vb:if>
 </vb:if>
 </script>
 		]]></template>
@@ -90,23 +92,23 @@ JANRAIN.SSO.CAPTURE.check_login({
 		<plugin active="1" executionorder="1">
 			<title>Janrain Capture Callback</title>
 			<hookname>global_start</hookname>
-			<phpcode><![CDATA[if ($vbulletin->options['janrain_capture_enable'] && isset($_GET['janrain_capture']) && isset($_GET['code'])) {
+			<phpcode><![CDATA[if ($vbulletin->options['janrain_capture_enable'] && isset($_GET['code'])) {
 	require_once(DIR . '/packages/janrain_capture/include.php');
 	capture_user_authenticate();
 
-	if (isset($_GET['origin']) {
+	if (isset($_GET['origin'])) {
 		header("Location: " . urldecode($_GET['origin']));
 	} else {
 		echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <body>
-<script type='text/javascript'>
+<script type="text/javascript">
   if (window.location != window.parent.location)
     window.parent.location.reload();
-</script>\n";
-  echo "</body>
-</html>";
+</script>
+</body>
+</html>';
 	}
 }]]></phpcode>
 		</plugin>

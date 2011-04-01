@@ -147,13 +147,11 @@ function update_capture_session($json_data) {
 				array('expiration_time' => time() + $json_data['expires_in'],
 					'access_token' => $json_data['access_token'],
 					'refresh_token' => $json_data['refresh_token']);
-		$cookieData =
-				array('access_token' => $json_data['access_token'],
-					'refresh_token' => $json_data['refresh_token']);
 
 		save_capture_session($capture_session);
 
-		setcookie('capture_session', $cookieData, time() + $json_data['expires_in']);
+		setcookie('capture_access_token', $json_data['access_token'], time() + $json_data['expires_in']);
+		setcookie('capture_refresh_token', $json_data['refresh_token'], time() + $json_data['expires_in']);
 
 		return true;
 	}
