@@ -6,12 +6,12 @@ Place this link in your navbar in the nouser <ul>:
 <product productid="janrain_capture" active="1">
 	<title>Janrain Capture</title>
 	<description>Janrain Capture</description>
-	<version>0.0.1</version>
+	<version>0.0.2</version>
 	<url>http://www.janrain.com</url>
 	<versioncheckurl />
 	<dependencies>
 		<dependency dependencytype="php" minversion="5" maxversion="" />
-		<dependency dependencytype="vbulletin" minversion="4.1.2" maxversion="" />
+		<dependency dependencytype="vbulletin" minversion="4.0.1" maxversion="" />
 	</dependencies>
 	<codes>
 	</codes>

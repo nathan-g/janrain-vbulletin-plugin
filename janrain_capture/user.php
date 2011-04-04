@@ -16,6 +16,18 @@ function capture_user_authenticate() {
 			)
 		")) {
 		capture_user_login();
+	} elseif ($vbulletin->userinfo = $vbulletin->db->query_first("
+		SELECT userid, usergroupid, membergroupids, username
+			FROM " . TABLE_PREFIX . "user
+			WHERE email = '{$profile['result']['email']}'
+		")) {
+		$userdata =& datamanager_init('User', $vbulletin, ERRTYPE_STANDARD);
+		$userdata->set_existing($vbulletin->userinfo);
+		$userfield = array($vbulletin->options['janrain_capture_uuid'] => $profile['result']['uuid']);
+		$customfields = $userdata->set_userfields($userfield, true, 'admin');
+		$userdata->save();
+
+		capture_user_login();
 	} else {
 		capture_create_user($profile);
 	}
