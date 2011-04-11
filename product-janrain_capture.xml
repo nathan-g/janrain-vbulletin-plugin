@@ -6,7 +6,7 @@ Place this link in your navbar in the nouser <ul>:
 <product productid="janrain_capture" active="1">
 	<title>Janrain Capture</title>
 	<description>Janrain Capture</description>
-	<version>0.0.3</version>
+	<version>0.0.5</version>
 	<url>http://www.janrain.com</url>
 	<versioncheckurl />
 	<dependencies>
@@ -16,8 +16,12 @@ Place this link in your navbar in the nouser <ul>:
 	<codes>
 	</codes>
 	<templates>
-		<template name="janrain_capture_scripts" templatetype="template" username="Janrain Capture" version="0.0.2"><![CDATA[
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+		<template name="janrain_capture_scripts" templatetype="template" username="Janrain Capture" version="0.0.5"><![CDATA[
+<script type="text/javascript">
+  if (typeof jQuery === 'undefined') {
+    document.write(unescape("%3Cscript src='http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js' type='text/javascript'%3E%3C/script%3E"));
+  }
+</script>
 <script src="{vb:raw vboptions.bburl}/packages/janrain_capture/fancybox/jquery.fancybox-1.3.3.pack.js"></script>
 <script src="{vb:raw vboptions.bburl}/packages/janrain_capture/json2.js"></script>
 <vb:literal>
@@ -52,9 +56,21 @@ CAPTURE = {
 function mylogout() {
   JANRAIN.SSO.CAPTURE.logout({
       sso_server: 'https://{vb:raw vboptions.janrain_capture_sso}',
-      logout_uri: '{vb:raw vboptions.bburl}/login.php?{vb:raw session.sessionurl}do=logout&logouthash={vb:raw bbuserinfo.logouthash}'
+      logout_uri: '{vb:raw vboptions.bburl}/login.php?{vb:raw session.sessionurl}&do=logout&logouthash={vb:raw bbuserinfo.logouthash}'
   });
-};
+}
+<vb:literal>
+function closeProfileEditor() {
+  var location = document.location.href;
+  var append = "&";
+
+  if (location.indexOf("?") < 1)
+    append = "?";
+
+  location = location + append + "capture_sync=1";
+  window.location = location;
+}
+</vb:literal>
 </script>
 <vb:else />
 <vb:if condition="$vbulletin->options['janrain_capture_sso']">
@@ -64,7 +80,7 @@ JANRAIN.SSO.CAPTURE.check_login({
     sso_server: 'https://{vb:raw vboptions.janrain_capture_sso}',
     client_id: '{vb:raw vboptions.janrain_capture_clientid}',
     redirect_uri: '{vb:raw vboptions.bburl}/',
-    logout_uri: '{vb:raw vboptions.bburl}/login.php?{vb:raw session.sessionurl}do=logout&logouthash={vb:raw bbuserinfo.logouthash}',
+    logout_uri: '{vb:raw vboptions.bburl}/login.php?{vb:raw session.sessionurl}&do=logout&logouthash={vb:raw bbuserinfo.logouthash}',
     xd_receiver: '{vb:raw vboptions.bburl}/packages/janrain_capture/xdcomm.html'
 });
 </script>
@@ -95,7 +111,8 @@ JANRAIN.SSO.CAPTURE.check_login({
 		<plugin active="1" executionorder="1">
 			<title>Janrain Capture Callback</title>
 			<hookname>global_start</hookname>
-			<phpcode><![CDATA[if ($vbulletin->options['janrain_capture_enable'] && isset($_GET['code'])) {
+			<phpcode><![CDATA[session_start();
+if ($vbulletin->options['janrain_capture_enable'] && isset($_GET['code'])) {
 	require_once(DIR . '/packages/janrain_capture/include.php');
 	capture_user_authenticate();
 
@@ -113,7 +130,23 @@ JANRAIN.SSO.CAPTURE.check_login({
 </body>
 </html>';
 	}
-}]]></phpcode>
+}
+
+if ($_GET['capture_sync']=='1') {
+  require_once(DIR . '/packages/janrain_capture/include.php');
+  capture_user_sync();
+}
+
+$vars=array();
+$vars['capture_access_token']=$_COOKIE['capture_access_token'];
+vB_Template::preRegister('modifyprofile', $vars);]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>Janrain Capture Profile</title>
+			<hookname>profile_editprofile_start</hookname>
+			<phpcode>
+				
+			</phpcode>
 		</plugin>
 	</plugins>
 	<phrases>
@@ -131,6 +164,10 @@ JANRAIN.SSO.CAPTURE.check_login({
 			<phrase name="setting_janrain_capture_sso_title"><![CDATA[Janrain SSO URL]]></phrase>
 			<phrase name="setting_janrain_capture_uuid_desc"><![CDATA[The column name of the User Profile Field used to store the Capture UUID]]></phrase>
 			<phrase name="setting_janrain_capture_uuid_title"><![CDATA[Capture UUID Field]]></phrase>
+			<phrase name="setting_janrain_capture_fname_desc"><![CDATA[The column name of the User Profile Field used to store First Name]]></phrase>
+			<phrase name="setting_janrain_capture_fname_title"><![CDATA[First Name Field]]></phrase>
+			<phrase name="setting_janrain_capture_lname_desc"><![CDATA[The column name of the User Profile Field used to store Last Name]]></phrase>
+			<phrase name="setting_janrain_capture_lname_title"><![CDATA[Last Name Field]]></phrase>
 		</phrasetype>
 	</phrases>
 	<options>
@@ -157,6 +194,14 @@ JANRAIN.SSO.CAPTURE.check_login({
 				<defaultvalue></defaultvalue>
 			</setting>
 			<setting varname="janrain_capture_uuid" displayorder="60">
+				<datatype>free</datatype>
+				<defaultvalue></defaultvalue>
+			</setting>
+			<setting varname="janrain_capture_fname" displayorder="70">
+				<datatype>free</datatype>
+				<defaultvalue></defaultvalue>
+			</setting>
+			<setting varname="janrain_capture_lname" displayorder="80">
 				<datatype>free</datatype>
 				<defaultvalue></defaultvalue>
 			</setting>

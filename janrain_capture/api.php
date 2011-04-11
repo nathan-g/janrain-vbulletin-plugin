@@ -1,30 +1,5 @@
 <?php
 
-// ------------------------------------------------------------
-// api.php
-// Provides functions to interface with the Capture and CaptureUI servers.
-// Requires the configuration settings provided by config.php, so config.php
-// must be loaded before calling the functions in this file.
-//
-// The functions in this file manipulate a PHP session variable called
-// capture_session, which is an array with the following fields:
-//  - access_otken    - the OAuth access token
-//  - expiration_time - when the token expires (same format as time())
-//  - refresh_token   - refresh token used to obtain another access_token when
-//                      the current access_token expires.
-//
-// The functions new_access_token and refresh_access_token connect to the
-// app service over SSL, obtain a new access token, and update the
-// capture session variable.
-//
-// The functions load_user_entity and get_entity are used to retrieve a JSON
-// array for a user entity from the server. load_user_entity calls get_entity.
-// ------------------------------------------------------------
-// Anyone that uses this file will be manipulating the session variable
-// 'capture_session', so just start the session now.
-session_name("vbulletin-janrain");
-session_start();
-
 function capture_session() {
 	if (isset($_SESSION['capture_session']))
 		return $_SESSION['capture_session'];
@@ -44,7 +19,6 @@ function clear_capture_session() {
 // Call a Capture API command over SSL, taking in an optional array of POST
 // arguments and an optional OAuth access token.  Returns the resulting JSON
 // data as a PHP array.
-// TODO support sending GET arguments.
 
 function capture_api_call($command, $arg_array = NULL, $access_token = NULL) {
 	global $vbulletin;

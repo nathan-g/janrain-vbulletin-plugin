@@ -13,7 +13,8 @@ Leave all other fields in their default states and click "Save". Note the value
 present in the "Name" column (e.g. "field5").
 4) Navigate to the Settings -> Options -> Janrain Capture Options and set
 Enable Janrain Capture to Yes, Enter your Client ID, Client Secret, Capture URL,
-and SSO URL. Set the Capture UUID Field to the Name value from step 3 and click
+and SSO URL. Set the Capture UUID Field to the Name value from step 3,
+optionally add the field names for First Name and Last name and click
 Save.
 5) Place the following link snippet in one of your template files in a location
 of your choosing:

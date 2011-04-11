@@ -15,17 +15,14 @@ function capture_user_authenticate() {
 				SELECT userid FROM " . TABLE_PREFIX . "userfield WHERE {$vbulletin->options['janrain_capture_uuid']} = '{$profile['result']['uuid']}'
 			)
 		")) {
+		capture_user_sync($profile);
 		capture_user_login();
 	} elseif ($vbulletin->userinfo = $vbulletin->db->query_first("
 		SELECT userid, usergroupid, membergroupids, username
 			FROM " . TABLE_PREFIX . "user
 			WHERE email = '{$profile['result']['email']}'
 		")) {
-		$userdata =& datamanager_init('User', $vbulletin, ERRTYPE_STANDARD);
-		$userdata->set_existing($vbulletin->userinfo);
-		$userfield = array($vbulletin->options['janrain_capture_uuid'] => $profile['result']['uuid']);
-		$customfields = $userdata->set_userfields($userfield, true, 'admin');
-		$userdata->save();
+		capture_user_sync($profile, true);
 
 		capture_user_login();
 	} else {
@@ -59,15 +56,13 @@ function capture_create_user($profile) {
 
 	// ... additional data setting ...
 	$userfield = array($vbulletin->options['janrain_capture_uuid'] => $profile['result']['uuid']);
-	/**
-	 * Enable when we're sure these are the column names
-	 *
-	  if($profile['result']['name']['familyName'])
-	  $userfield['last_name'] = $profile['result']['name']['familyName'];
 
-	  if($profile['result']['name']['givenName'])
-	  $userfield['first_name'] = $profile['result']['name']['givenName'];
-	 */
+	if($profile['result']['name']['familyName'] && $vbulletin->options['janrain_capture_lname'])
+		$userfield[$vbulletin->options['janrain_capture_lname']] = $profile['result']['name']['familyName'];
+
+	if($profile['result']['name']['givenName'] && $vbulletin->options['janrain_capture_fname'])
+		$userfield[$vbulletin->options['janrain_capture_fname']] = $profile['result']['name']['givenName'];
+
 	$customfields = $userdata->set_userfields($userfield, true, 'admin');
 	$userdata->pre_save();
 
@@ -86,6 +81,29 @@ function capture_create_user($profile) {
 		require_once(DIR . '/includes/functions_login.php');
 		$vbulletin->session->created = false;
 		process_new_login('', false, '');
+	}
+}
+
+function capture_user_sync($profile=false, $setId=false) {
+	global $vbulletin;
+
+	if ($profile===false)
+		$profile = load_user_entity();
+
+	if ($profile) {
+		$userdata =& datamanager_init('User', $vbulletin, ERRTYPE_STANDARD);
+		$userdata->set_existing($vbulletin->userinfo);
+		$userdata->set('username', $profile['result']['email']);
+
+		if ($profile['result']['birthday'])
+			$userdata->set('birthday', $profile['result']['birthday']);
+
+		if ($setId) {
+			$userfield = array($vbulletin->options['janrain_capture_uuid'] => $profile['result']['uuid']);
+			$customfields = $userdata->set_userfields($userfield, true, 'admin');
+		}
+
+		$userdata->save();
 	}
 }
 
