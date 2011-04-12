@@ -8,25 +8,29 @@ function capture_user_authenticate() {
 
 	new_access_token($auth_code, $redirect_uri);
 	$profile = load_user_entity();
-	if ($vbulletin->userinfo = $vbulletin->db->query_first("
-		SELECT userid, usergroupid, membergroupids, username
-			FROM " . TABLE_PREFIX . "user
-			WHERE userid IN (
-				SELECT userid FROM " . TABLE_PREFIX . "userfield WHERE {$vbulletin->options['janrain_capture_uuid']} = '{$profile['result']['uuid']}'
-			)
-		")) {
-		capture_user_sync($profile);
-		capture_user_login();
-	} elseif ($vbulletin->userinfo = $vbulletin->db->query_first("
-		SELECT userid, usergroupid, membergroupids, username
-			FROM " . TABLE_PREFIX . "user
-			WHERE email = '{$profile['result']['email']}'
-		")) {
-		capture_user_sync($profile, true);
+	if (isset($profile)) {
+		if ($vbulletin->userinfo = $vbulletin->db->query_first("
+			SELECT userid, usergroupid, membergroupids, username
+				FROM " . TABLE_PREFIX . "user
+				WHERE userid IN (
+					SELECT userid FROM " . TABLE_PREFIX . "userfield WHERE {$vbulletin->options['janrain_capture_uuid']} = '{$profile['result']['uuid']}'
+				)
+			")) {
+			capture_user_sync($profile);
+			capture_user_login();
+		} elseif ($vbulletin->userinfo = $vbulletin->db->query_first("
+			SELECT userid, usergroupid, membergroupids, username
+				FROM " . TABLE_PREFIX . "user
+				WHERE email = '{$profile['result']['email']}'
+			")) {
+			capture_user_sync($profile, true);
 
-		capture_user_login();
+			capture_user_login();
+		} else {
+			capture_create_user($profile);
+		}
 	} else {
-		capture_create_user($profile);
+		die("Could not load user profile. Please try again");
 	}
 }
 
