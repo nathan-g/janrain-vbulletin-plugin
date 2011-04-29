@@ -19,7 +19,7 @@ Save.
 5) Place the following link snippet in one of your template files in a location
 of your choosing:
 
-<a class='iframe janrain_signin_link' href='https://{vb:raw vboptions.janrain_capture_captureaddr}/oauth/signin?response_type=code&redirect_uri={vb:raw vboptions.bburl}/&client_id={vb:raw vboptions.janrain_capture_clientid}&xd_receiver={vb:raw vboptions.bburl}/packages/janrain_capture/xdcomm.html'>Register / Sign In</a>
+<a class='iframe janrain_signin_link' href='{vb:raw bbuserinfo.janrain_capture_login}'>Register / Sign In</a>
 
 6) vBulletin replaces page content with the output from the "STANDARD_ERROR"
 template to prompt users to log in when attempting to access a page intended
@@ -33,7 +33,7 @@ following code between the {vb:raw footer} and </body> lines:
   jQuery(function($){
     $.fancybox({
       type: 'iframe',
-      href: 'https://{vb:raw vboptions.janrain_capture_captureaddr}/oauth/signin?response_type=code&redirect_uri={vb:raw vboptions.bburl}/&client_id={vb:raw vboptions.janrain_capture_clientid}&xd_receiver={vb:raw vboptions.bburl}/packages/janrain_capture/xdcomm.html',
+      href: '{vb:raw bbuserinfo.janrain_capture_login}',
       padding: 0,
       scrolling: 'no',
       autoScale: true,
@@ -54,14 +54,14 @@ And ends immediately before this line:
 <h3 class="blocksubhead">{vb:rawphrase optional_information_will}</h3>
 
 Replace with this content:
-<vb:if condition="$_COOKIE['capture_access_token']">
+<vb:if condition="$vbulletin->session->vars['capture_access_token']">
 <h3 class="blocksubhead">{vb:rawphrase registration_required_information}</h3>
 <div class="section">
 
     <div class="blockrow singlebutton">
         <label>Edit Profile:</label>
         <div class="rightcol">
-            <a style="display:inline-block" href="https://{vb:raw vboptions.janrain_capture_captureaddr}/oauth/profile?flags=stay_in_window&access_token={vb:raw capture_access_token}&callback=closeProfileEditor&xd_receiver={vb:raw vboptions.bburl}/packages/janrain_capture/xdcomm.html" class="iframe janrain_signin_link button">Edit Profile</a>
+            <a style="display:inline-block" href="{vb:raw bbuserinfo.janrain_capture_profile}" class="iframe janrain_profile_link button">Edit Profile</a>
         </div>
         <p class="description">
             Please click this button to edit your profile data. Any changes you've made on this page will not be saved.

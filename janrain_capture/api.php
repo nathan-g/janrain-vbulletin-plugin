@@ -1,20 +1,5 @@
 <?php
 
-function capture_session() {
-    if (isset($_SESSION['capture_session']))
-        return $_SESSION['capture_session'];
-    else
-        return NULL;
-}
-
-function save_capture_session($capture_session) {
-    $_SESSION['capture_session'] = $capture_session;
-}
-
-function clear_capture_session() {
-    unset($_SESSION['capture_session']);
-}
-
 // ----------
 // Call a Capture API command over SSL, taking in an optional array of POST
 // arguments and an optional OAuth access token.  Returns the resulting JSON
@@ -69,9 +54,18 @@ function get_entity($access_token) {
 //
 // If the access token must be refreshed, then $_SESSION['capture_session'] will be updated.
 function load_user_entity($can_refresh = true) {
-    $capture_session = capture_session();
-    if (!isset($capture_session))
-        return NULL;
+    global $vbulletin;
+    
+    if (!$vbulletin->capture_session) {
+        if (!$vulletin->session->vars['capture_access_token'] && !$vulletin->session->vars['capture_refresh_token'])
+            return NULL;
+        else
+            $vbulletin->capture_session = array(
+                "capture_access_token" => $vulletin->session->vars['capture_access_token'],
+                "capture_refresh_token" => $vulletin->session->vars['capture_refresh_token'],
+                "capture_expires_in" => $vulletin->session->vars['capture_expires_in']
+            );
+    }
 
     $user_entity = NULL;
 
@@ -86,10 +80,10 @@ function load_user_entity($can_refresh = true) {
     $need_to_refresh = false;
 
     // Check if we need to refresh the access token
-    if (time() >= $capture_session['expiration_time'])
+    if (time() >= $vbulletin->capture_session['capture_expires_in'])
         $need_to_refresh = true;
     else {
-        $user_entity = get_entity($capture_session['access_token']);
+        $user_entity = get_entity($vbulletin->capture_session['capture_access_token']);
         if (isset($user_entity['code']) && $user_entity['code'] == '414')
             $need_to_refresh = true;
     }
@@ -97,7 +91,7 @@ function load_user_entity($can_refresh = true) {
     // If necessary, refresh the access token and try to fetch the entity again.
     if ($need_to_refresh) {
         if ($can_refresh) {
-            refresh_access_token($capture_session['refresh_token']);
+            refresh_access_token($vbulletin->capture_session['capture_refresh_token']);
             return load_user_entity(false);
         }
     }
@@ -113,20 +107,32 @@ function load_user_entity($can_refresh = true) {
 // is replaced with an absolute 'expiration_time' field.
 
 function update_capture_session($json_data) {
+    global $vbulletin;
 
     if (isset($json_data['stat']) && $json_data['stat'] == 'error') {
         return false;
     } else {
-        $capture_session =
-                array('expiration_time' => time() + $json_data['expires_in'],
-                    'access_token' => $json_data['access_token'],
-                    'refresh_token' => $json_data['refresh_token']);
 
-        save_capture_session($capture_session);
-
-        setcookie('capture_access_token', $json_data['access_token'], time() + ($json_data['expires_in']*10));
-        setcookie('capture_refresh_token', $json_data['refresh_token'], time() + ($json_data['expires_in']*10));
-
+        $vbulletin->session->db_fields = array_merge(
+            $vbulletin->session->db_fields,
+            array(
+                'capture_access_token' => TYPE_STRING,
+                'capture_refresh_token' => TYPE_STRING,
+                'capture_expires_in' => TYPE_STRING
+            )
+        );
+        
+        $vbulletin->session->set("capture_access_token", $json_data['access_token']);
+        $vbulletin->session->set("capture_refresh_token", $json_data['refresh_token']);
+        $vbulletin->session->set("capture_expires_in", time() + $json_data['expires_in']);
+        $vbulletin->session->save();        
+        
+        $vbulletin->capture_session = array(
+            "capture_access_token" => $json_data['access_token'],
+            "capture_refresh_token" => $json_data['refresh_token'],
+            "capture_expires_in" => time() + $json_data['expires_in']
+        );
+        
         return true;
     }
 }

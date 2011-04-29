@@ -39,7 +39,11 @@ function capture_user_login() {
     require_once(DIR . '/includes/functions_login.php');
     exec_unstrike_user($vbulletin->userinfo['username']);
     process_new_login('', false, '');
-    //do_login_redirect();
+    update_capture_session(array(
+        'access_token' => $vbulletin->capture_session['capture_access_token'],
+        'refresh_token' => $vbulletin->capture_session['capture_refresh_token'],
+        'expires_in' => $vbulletin->capture_session['capture_expires_in']
+    ));
 }
 
 function capture_create_user($profile) {
