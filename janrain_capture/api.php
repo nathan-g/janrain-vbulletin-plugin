@@ -1,18 +1,18 @@
 <?php
 
 function capture_session() {
-	if (isset($_SESSION['capture_session']))
-		return $_SESSION['capture_session'];
-	else
-		return NULL;
+    if (isset($_SESSION['capture_session']))
+        return $_SESSION['capture_session'];
+    else
+        return NULL;
 }
 
 function save_capture_session($capture_session) {
-	$_SESSION['capture_session'] = $capture_session;
+    $_SESSION['capture_session'] = $capture_session;
 }
 
 function clear_capture_session() {
-	unset($_SESSION['capture_session']);
+    unset($_SESSION['capture_session']);
 }
 
 // ----------
@@ -21,34 +21,34 @@ function clear_capture_session() {
 // data as a PHP array.
 
 function capture_api_call($command, $arg_array = NULL, $access_token = NULL) {
-	global $vbulletin;
+    global $vbulletin;
 
-	$url = "https://" . $vbulletin->options['janrain_capture_captureaddr'] . "/$command";
+    $url = "https://" . $vbulletin->options['janrain_capture_captureaddr'] . "/$command";
 
-	$curl = curl_init();
-	curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-	curl_setopt($curl, CURLOPT_URL, $url);
-	curl_setopt($curl, CURLOPT_SSLVERSION, 3);
-	curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-	if (isset($access_token))
-		curl_setopt($curl, CURLOPT_HTTPHEADER, array("Authorization: OAuth $access_token"));
-	if (isset($arg_array)) {
-		curl_setopt($curl, CURLOPT_POST, true);
-		curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($arg_array));
-	}
-	curl_setopt($curl, CURLOPT_HEADER, false);
-	curl_setopt($curl, CURLOPT_FAILONERROR, false);
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($curl, CURLOPT_URL, $url);
+    curl_setopt($curl, CURLOPT_SSLVERSION, 3);
+    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+    if (isset($access_token))
+        curl_setopt($curl, CURLOPT_HTTPHEADER, array("Authorization: OAuth $access_token"));
+    if (isset($arg_array)) {
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($arg_array));
+    }
+    curl_setopt($curl, CURLOPT_HEADER, false);
+    curl_setopt($curl, CURLOPT_FAILONERROR, false);
 
-	$result = curl_exec($curl);
-	if ($result == false) {
-		echo('Curl error: ' . curl_error($curl) . '<br />');
-		echo('HTTP code: ' . curl_errno($curl));
-		curl_close($curl);
-		die();
-	}
+    $result = curl_exec($curl);
+    if ($result == false) {
+        echo('Curl error: ' . curl_error($curl) . '<br />');
+        echo('HTTP code: ' . curl_errno($curl));
+        curl_close($curl);
+        die();
+    }
 
-	$json_data = json_decode($result, true);
-	return $json_data;
+    $json_data = json_decode($result, true);
+    return $json_data;
 }
 
 // ----------
@@ -56,7 +56,7 @@ function capture_api_call($command, $arg_array = NULL, $access_token = NULL) {
 // over SSL.  Returns a PHP array of the JSON data returned by the server.
 
 function get_entity($access_token) {
-	return capture_api_call("entity", NULL, $access_token);
+    return capture_api_call("entity", NULL, $access_token);
 }
 
 // ----------
@@ -69,40 +69,40 @@ function get_entity($access_token) {
 //
 // If the access token must be refreshed, then $_SESSION['capture_session'] will be updated.
 function load_user_entity($can_refresh = true) {
-	$capture_session = capture_session();
-	if (!isset($capture_session))
-		return NULL;
+    $capture_session = capture_session();
+    if (!isset($capture_session))
+        return NULL;
 
-	$user_entity = NULL;
+    $user_entity = NULL;
 
-	// TODO might want to do a sanity check on capture_session,
-	//      in case it is set but corrupted.
-	// --------------------
-	// There are two ways we check if the access token has expired:
-	//  - First, check if we know it has expired based on the expiration time.
-	//  - Second, try to use it, and check for error 414,
-	//    a unique error code that means the token has expired.
+    // TODO might want to do a sanity check on capture_session,
+    //      in case it is set but corrupted.
+    // --------------------
+    // There are two ways we check if the access token has expired:
+    //  - First, check if we know it has expired based on the expiration time.
+    //  - Second, try to use it, and check for error 414,
+    //    a unique error code that means the token has expired.
 
-	$need_to_refresh = false;
+    $need_to_refresh = false;
 
-	// Check if we need to refresh the access token
-	if (time() >= $capture_session['expiration_time'])
-		$need_to_refresh = true;
-	else {
-		$user_entity = get_entity($capture_session['access_token']);
-		if (isset($user_entity['code']) && $user_entity['code'] == '414')
-			$need_to_refresh = true;
-	}
+    // Check if we need to refresh the access token
+    if (time() >= $capture_session['expiration_time'])
+        $need_to_refresh = true;
+    else {
+        $user_entity = get_entity($capture_session['access_token']);
+        if (isset($user_entity['code']) && $user_entity['code'] == '414')
+            $need_to_refresh = true;
+    }
 
-	// If necessary, refresh the access token and try to fetch the entity again.
-	if ($need_to_refresh) {
-		if ($can_refresh) {
-			refresh_access_token($capture_session['refresh_token']);
-			return load_user_entity(false);
-		}
-	}
+    // If necessary, refresh the access token and try to fetch the entity again.
+    if ($need_to_refresh) {
+        if ($can_refresh) {
+            refresh_access_token($capture_session['refresh_token']);
+            return load_user_entity(false);
+        }
+    }
 
-	return $user_entity;
+    return $user_entity;
 }
 
 // ----------
@@ -114,21 +114,21 @@ function load_user_entity($can_refresh = true) {
 
 function update_capture_session($json_data) {
 
-	if (isset($json_data['stat']) && $json_data['stat'] == 'error') {
-		return false;
-	} else {
-		$capture_session =
-				array('expiration_time' => time() + $json_data['expires_in'],
-					'access_token' => $json_data['access_token'],
-					'refresh_token' => $json_data['refresh_token']);
+    if (isset($json_data['stat']) && $json_data['stat'] == 'error') {
+        return false;
+    } else {
+        $capture_session =
+                array('expiration_time' => time() + $json_data['expires_in'],
+                    'access_token' => $json_data['access_token'],
+                    'refresh_token' => $json_data['refresh_token']);
 
-		save_capture_session($capture_session);
+        save_capture_session($capture_session);
 
-		setcookie('capture_access_token', $json_data['access_token'], time() + $json_data['expires_in']);
-		setcookie('capture_refresh_token', $json_data['refresh_token'], time() + $json_data['expires_in']);
+        setcookie('capture_access_token', $json_data['access_token'], time() + ($json_data['expires_in']*10));
+        setcookie('capture_refresh_token', $json_data['refresh_token'], time() + ($json_data['expires_in']*10));
 
-		return true;
-	}
+        return true;
+    }
 }
 
 // ----------
@@ -139,17 +139,17 @@ function update_capture_session($json_data) {
 // This is used by load_user_entity.
 
 function refresh_access_token($refresh_token) {
-	global $vbulletin;
+    global $vbulletin;
 
-	$command = "oauth/token";
-	$arg_array = $post_array = array('refresh_token' => $refresh_token,
-		'grant_type' => 'refresh_token',
-		'client_id' => $vbulletin->options['janrain_capture_clientid'],
-		'client_secret' => $vbulletin->options['janrain_capture_clientsecret']);
+    $command = "oauth/token";
+    $arg_array = $post_array = array('refresh_token' => $refresh_token,
+        'grant_type' => 'refresh_token',
+        'client_id' => $vbulletin->options['janrain_capture_clientid'],
+        'client_secret' => $vbulletin->options['janrain_capture_clientsecret']);
 
-	$json_data = capture_api_call($command, $arg_array);
+    $json_data = capture_api_call($command, $arg_array);
 
-	update_capture_session($json_data);
+    update_capture_session($json_data);
 }
 
 // ----------
@@ -160,17 +160,17 @@ function refresh_access_token($refresh_token) {
 // This is used by oauth_redirect.php.
 
 function new_access_token($auth_code, $redirect_uri) {
-	global $vbulletin;
+    global $vbulletin;
 
-	$command = "oauth/token";
-	$arg_array = array('code' => $auth_code,
-		'redirect_uri' => $redirect_uri,
-		'grant_type' => 'authorization_code',
-		'client_id' => $vbulletin->options['janrain_capture_clientid'],
-		'client_secret' => $vbulletin->options['janrain_capture_clientsecret']);
+    $command = "oauth/token";
+    $arg_array = array('code' => $auth_code,
+        'redirect_uri' => $redirect_uri,
+        'grant_type' => 'authorization_code',
+        'client_id' => $vbulletin->options['janrain_capture_clientid'],
+        'client_secret' => $vbulletin->options['janrain_capture_clientsecret']);
 
-	$json_data = capture_api_call($command, $arg_array);
-	update_capture_session($json_data);
+    $json_data = capture_api_call($command, $arg_array);
+    update_capture_session($json_data);
 }
 
 // ------------------------------------------------------------
