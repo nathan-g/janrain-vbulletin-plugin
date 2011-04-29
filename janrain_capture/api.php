@@ -57,14 +57,15 @@ function load_user_entity($can_refresh = true) {
     global $vbulletin;
     
     if (!$vbulletin->capture_session) {
-        if (!$vulletin->session->vars['capture_access_token'] && !$vulletin->session->vars['capture_refresh_token'])
+        if (!$vbulletin->session->vars['capture_access_token'] && !$vbulletin->session->vars['capture_refresh_token']) {
             return NULL;
-        else
+        } else {
             $vbulletin->capture_session = array(
-                "capture_access_token" => $vulletin->session->vars['capture_access_token'],
-                "capture_refresh_token" => $vulletin->session->vars['capture_refresh_token'],
-                "capture_expires_in" => $vulletin->session->vars['capture_expires_in']
+                "capture_access_token" => $vbulletin->session->vars['capture_access_token'],
+                "capture_refresh_token" => $vbulletin->session->vars['capture_refresh_token'],
+                "capture_expires_in" => $vbulletin->session->vars['capture_expires_in']
             );
+        }
     }
 
     $user_entity = NULL;

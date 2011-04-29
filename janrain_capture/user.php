@@ -112,7 +112,17 @@ function capture_user_sync($profile=false, $setId=false) {
         }
 
         $userdata->save();
+        
+        exec_header_redirect(capture_current_page());
     }
+}
+
+function capture_current_page() {
+    $url = (@$_SERVER["HTTPS"] == "on") ? "https://" : "http://";
+    $url .= $_SERVER["SERVER_NAME"];
+    $url .= ($_SERVER["SERVER_PORT"] != "80") ? ":".$_SERVER["SERVER_PORT"] : '';
+    $url .= preg_replace("/[\?\&]capture_sync\=1/i", "", $_SERVER['REQUEST_URI']);
+    return $url;
 }
 
 ?>

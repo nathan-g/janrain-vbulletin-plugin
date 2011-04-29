@@ -163,13 +163,6 @@ $vbulletin->userinfo['janrain_capture_login'] = "https://{$vbulletin->options['j
 $vbulletin->userinfo['janrain_capture_profile'] = "https://{$vbulletin->options['janrain_capture_captureaddr']}/oauth/profile?flags=stay_in_window&access_token={$vbulletin->session->vars['capture_access_token']}&callback=closeProfileEditor&xd_receiver=" . urlencode($vbulletin->options['bburl'] . '/packages/janrain_capture/xdcomm.html'); 
 ]]></phpcode>
         </plugin>
-        <plugin active="1" executionorder="5">
-            <title>Janrain Capture Profile</title>
-            <hookname>profile_editprofile_start</hookname>
-            <phpcode>
-                
-            </phpcode>
-        </plugin>
     </plugins>
     <phrases>
         <phrasetype name="vBulletin Settings" fieldname="vbsettings">
