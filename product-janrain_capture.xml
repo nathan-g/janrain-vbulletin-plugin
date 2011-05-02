@@ -134,29 +134,29 @@ JANRAIN.SSO.CAPTURE.check_login({
 if ($vbulletin->options['janrain_capture_enable'] && isset($_GET['code'])) {
     require_once(DIR . '/packages/janrain_capture/include.php');
     capture_user_authenticate();
-
     if (isset($_GET['origin'])) {
         exec_header_redirect(urldecode($_GET['origin']));
     } else {
-        $vbulletin->shutdown->shutdown();
-        exec_shut_down();
         echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <body>
+<p>Please wait...</p>
 <script type="text/javascript">
   if (window.location != window.parent.location)
     window.parent.location.reload();
 </script>
 </body>
 </html>';
+        $vbulletin->shutdown->shutdown();
+        exec_shut_down();
         exit;
     }
 }
 
 if ($_GET['capture_sync']=='1') {
   require_once(DIR . '/packages/janrain_capture/include.php');
-  capture_user_sync();
+  capture_user_sync(false, false, true);
 }
 
 $vbulletin->userinfo['janrain_capture_login'] = "https://{$vbulletin->options['janrain_capture_captureaddr']}/oauth/signin?response_type=code&redirect_uri=" . urlencode($vbulletin->options['bburl'] . '/') . "&client_id={$vbulletin->options['janrain_capture_clientid']}&xd_receiver=" . urlencode($vbulletin->options['bburl'] . '/packages/janrain_capture/xdcomm.html');

@@ -92,7 +92,7 @@ function capture_create_user($profile) {
     }
 }
 
-function capture_user_sync($profile=false, $setId=false) {
+function capture_user_sync($profile=false, $setId=false, $redirect=false) {
     global $vbulletin;
 
     if ($profile===false)
@@ -112,8 +112,8 @@ function capture_user_sync($profile=false, $setId=false) {
         }
 
         $userdata->save();
-        
-        exec_header_redirect(capture_current_page());
+        if ($redirect)
+            exec_header_redirect(capture_current_page());
     }
 }
 
