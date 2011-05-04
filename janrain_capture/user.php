@@ -89,6 +89,11 @@ function capture_create_user($profile) {
         require_once(DIR . '/includes/functions_login.php');
         $vbulletin->session->created = false;
         process_new_login('', false, '');
+        update_capture_session(array(
+            'access_token' => $vbulletin->capture_session['capture_access_token'],
+            'refresh_token' => $vbulletin->capture_session['capture_refresh_token'],
+            'expires_in' => $vbulletin->capture_session['capture_expires_in']
+        ));
     }
 }
 
