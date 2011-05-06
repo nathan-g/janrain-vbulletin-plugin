@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
 Place this link in your navbar in the nouser <ul>:
-<li><a class='iframe janrain_signin_link' href='https://{vb:raw vboptions.janrain_capture_captureaddr}/oauth/signin?response_type=code&redirect_uri={vb:raw vboptions.bburl}/&client_id={vb:raw vboptions.janrain_capture_clientid}&xd_receiver={vb:raw vboptions.bburl}/packages/janrain_capture/xdcomm.html'>Register / Sign In</a></li>
+<li><a class='iframe janrain_signin_link' href='{vb:raw bbuserinfo.janrain_capture_login}'>Register / Sign In</a></li>
 -->
 <product productid="janrain_capture" active="1">
     <title>Janrain Capture</title>
@@ -152,8 +152,6 @@ JANRAIN.SSO.CAPTURE.check_login({
         
         $vbulletin->session->set("capture_password_recover", 0);
     }
-    var_dump($vbulletin->session->vars['capture_password_recover']);
-    var_dump($vbulletin->capture_session['capture_password_recover']);
     $templater = vB_Template::create('janrain_capture_scripts');
     $templater->register('capture_profile_change_password', "https://{$vbulletin->options['janrain_capture_captureaddr']}/oauth/profile_change_password?flags=stay_in_window&access_token={$vbulletin->session->vars['capture_access_token']}&callback=closeProfileEditor&xd_receiver=" . urlencode($vbulletin->options['bburl'] . '/packages/janrain_capture/xdcomm.html'));
     $templater->register_page_templates();
