@@ -119,19 +119,25 @@ function update_capture_session($json_data) {
             array(
                 'capture_access_token' => TYPE_STRING,
                 'capture_refresh_token' => TYPE_STRING,
-                'capture_expires_in' => TYPE_STRING
+                'capture_expires_in' => TYPE_STRING,
+                'capture_password_recover' => TYPE_INT
             )
         );
+        
+        $password_recover = (isset($json_data['transaction_state']['capture']['password_recover'])
+            && $json_data['transaction_state']['capture']['password_recover'] == true) ? 1 : 0;
         
         $vbulletin->session->set("capture_access_token", $json_data['access_token']);
         $vbulletin->session->set("capture_refresh_token", $json_data['refresh_token']);
         $vbulletin->session->set("capture_expires_in", time() + $json_data['expires_in']);
-        $vbulletin->session->save();        
+        $vbulletin->session->set("capture_password_recover", $password_recover);
+        $vbulletin->session->save();
         
         $vbulletin->capture_session = array(
             "capture_access_token" => $json_data['access_token'],
             "capture_refresh_token" => $json_data['refresh_token'],
-            "capture_expires_in" => time() + $json_data['expires_in']
+            "capture_expires_in" => time() + $json_data['expires_in'],
+            "capture_password_recover" => $password_recover
         );
         
         return true;

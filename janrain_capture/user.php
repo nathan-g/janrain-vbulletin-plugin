@@ -42,7 +42,12 @@ function capture_user_login() {
     update_capture_session(array(
         'access_token' => $vbulletin->capture_session['capture_access_token'],
         'refresh_token' => $vbulletin->capture_session['capture_refresh_token'],
-        'expires_in' => $vbulletin->capture_session['capture_expires_in']
+        'expires_in' => $vbulletin->capture_session['capture_expires_in'],
+        'transaction_state' => array(
+            'capture' => array(
+                'password_recover' => $vbulletin->capture_session['capture_password_recover']
+            )
+        )
     ));
 }
 
@@ -92,7 +97,12 @@ function capture_create_user($profile) {
         update_capture_session(array(
             'access_token' => $vbulletin->capture_session['capture_access_token'],
             'refresh_token' => $vbulletin->capture_session['capture_refresh_token'],
-            'expires_in' => $vbulletin->capture_session['capture_expires_in']
+            'expires_in' => $vbulletin->capture_session['capture_expires_in'],
+            'transaction_state' => array(
+                'capture' => array(
+                    'password_recover' => $vbulletin->capture_session['capture_password_recover']
+                )
+            )
         ));
     }
 }

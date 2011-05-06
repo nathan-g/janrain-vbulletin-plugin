@@ -20,7 +20,8 @@ Place this link in your navbar in the nouser <ul>:
                     "ALTER TABLE `" . TABLE_PREFIX . "session`
                         ADD COLUMN `capture_access_token` varchar(255) DEFAULT NULL,
                         ADD COLUMN `capture_refresh_token` varchar(255) DEFAULT NULL,
-                        ADD COLUMN `capture_expires_in` varchar(255) DEFAULT NULL;"
+                        ADD COLUMN `capture_expires_in` varchar(255) DEFAULT NULL,
+                        ADD COLUMN `capture_password_recover` tinyint(4) NULL DEFAULT '0';"
                 );
             ]]></installcode>
             <uninstallcode><![CDATA[
@@ -29,7 +30,8 @@ Place this link in your navbar in the nouser <ul>:
                     "ALTER TABLE `" . TABLE_PREFIX . "session`
                         DROP COLUMN `capture_access_token`,
                         DROP COLUMN `capture_refresh_token`,
-                        DROP COLUMN `capture_expires_in`;"
+                        DROP COLUMN `capture_expires_in`,
+                        DROP COLUMN `capture_password_recover`;"
                 );
             ]]></uninstallcode>
         </code>
@@ -43,6 +45,21 @@ Place this link in your navbar in the nouser <ul>:
 </script>
 <script src="{vb:raw vboptions.bburl}/packages/janrain_capture/fancybox/jquery.fancybox-1.3.3.pack.js"></script>
 <script src="{vb:raw vboptions.bburl}/packages/janrain_capture/json2.js"></script>
+<vb:if condition="$vbulletin->capture_password_recover==1">
+<script type="text/javascript">
+$(function(){
+    $.fancybox({
+        type: 'iframe',
+        href: '{vb:raw capture_profile_change_password}',
+        padding: 0,
+        scrolling: 'no',
+        autoScale: true,
+        width: 666,
+        autoDimensions: false
+    });
+});
+</script>
+</vb:if>
 <vb:literal>
 <script type="text/javascript">
    jQuery(document).ready(function($) {
@@ -119,7 +136,26 @@ JANRAIN.SSO.CAPTURE.check_login({
             <title>Janrain Capture Dependency Loader</title>
             <hookname>parse_templates</hookname>
             <phpcode><![CDATA[if ($vbulletin->options['janrain_capture_enable']) {
+    if ($vbulletin->session->vars['capture_password_recover']==1 || $vbulletin->capture_session['capture_password_recover']==1) {
+        
+        $vbulletin->capture_password_recover = 1;
+        
+        $vbulletin->session->db_fields = array_merge(
+            $vbulletin->session->db_fields,
+            array(
+                'capture_access_token' => TYPE_STRING,
+                'capture_refresh_token' => TYPE_STRING,
+                'capture_expires_in' => TYPE_STRING,
+                'capture_password_recover' => TYPE_INT
+            )
+        );
+        
+        $vbulletin->session->set("capture_password_recover", 0);
+    }
+    var_dump($vbulletin->session->vars['capture_password_recover']);
+    var_dump($vbulletin->capture_session['capture_password_recover']);
     $templater = vB_Template::create('janrain_capture_scripts');
+    $templater->register('capture_profile_change_password', "https://{$vbulletin->options['janrain_capture_captureaddr']}/oauth/profile_change_password?flags=stay_in_window&access_token={$vbulletin->session->vars['capture_access_token']}&callback=closeProfileEditor&xd_receiver=" . urlencode($vbulletin->options['bburl'] . '/packages/janrain_capture/xdcomm.html'));
     $templater->register_page_templates();
     $template_hook['footer_javascript'] .= $templater->render();
     $templater2 = vB_Template::create('janrain_capture_styles');
