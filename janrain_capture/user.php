@@ -1,9 +1,12 @@
 <?php
 
-function capture_user_authenticate() {
+function capture_user_authenticate($from_sso=false, $origin=false) {
     global $vbulletin;
 
-    $redirect_uri = $vbulletin->options['bburl'] . "/";
+    $redirect_uri = ($from_sso && $origin)
+        ? $vbulletin->options['bburl'] . "/?from_sso=true&origin=" . urlencode($origin)
+        : $vbulletin->options['bburl'] . "/";
+    
     $auth_code = $_GET["code"];
 
     new_access_token($auth_code, $redirect_uri);
